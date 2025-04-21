@@ -1,34 +1,23 @@
 #!/usr/bin/env python3
 
 import sys
-import spotipy
 import tidalapi
 import webbrowser
 import yaml
+
+from spotify_to_tidal.type.config import GeneralConfig
+
+from .spotinoapi import Spotify
 
 __all__ = [
     'open_spotify_session',
     'open_tidal_session'
 ]
 
-SPOTIFY_SCOPES = 'playlist-read-private, user-library-read'
+def open_spotify_session() -> Spotify:
+    return Spotify()
 
-def open_spotify_session(config) -> spotipy.Spotify:
-    credentials_manager = spotipy.SpotifyOAuth(username=config['username'],
-       scope=SPOTIFY_SCOPES,
-       client_id=config['client_id'],
-       client_secret=config['client_secret'],
-       redirect_uri=config['redirect_uri'],
-       requests_timeout=2,
-       open_browser=config.get('open_browser', True))
-    try:
-        credentials_manager.get_access_token(as_dict=False)
-    except spotipy.SpotifyOauthError:
-        sys.exit("Error opening Spotify sesion; could not get token for username: ".format(config['username']))
-
-    return spotipy.Spotify(oauth_manager=credentials_manager)
-
-def open_tidal_session(config = None) -> tidalapi.Session:
+def open_tidal_session(config: GeneralConfig | None = None) -> tidalapi.Session:
     try:
         with open('.session.yml', 'r') as session_file:
             previous_session = yaml.safe_load(session_file)
